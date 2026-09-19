@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juz 30 (Juz 'Amma) - Quran & Murottal Interactive dengan Perbesar Ayat Aktif</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        arabic: ['Amiri', 'Scheherazade New', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Arabic & Sans UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --arabic-font-size: 32px;
+            --active-zoom-factor: 1.35;
+        }
+
+        .font-arabic {
+            font-family: 'Amiri', 'Scheherazade New', serif;
+            line-height: 2.4;
+        }
+
+        /* Base Verse Card Smooth Transition */
+        .verse-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Active Verse Magnification & Highlights */
+        .active-verse {
+            background-color: rgba(16, 185, 129, 0.08) !important;
+            border-left: 6px solid #10b981 !important;
+            transform: scale(1.025);
+            box-shadow: 0 12px 28px -6px rgba(16, 185, 129, 0.22), 0 8px 10px -6px rgba(16, 185, 129, 0.15);
+            z-index: 20;
+            position: relative;
+            outline: 2px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .dark .active-verse {
+            background-color: rgba(16, 185, 129, 0.16) !important;
+            border-left: 6px solid #34d399 !important;
+            box-shadow: 0 12px 28px -6px rgba(52, 211, 153, 0.25), 0 8px 10px -6px rgba(52, 211, 153, 0.15);
+            outline: 2px solid rgba(52, 211, 153, 0.5);
+        }
+
+        /* Magnified Arabic Text inside Active Verse */
+        .active-verse .arabic-text {
+            font-size: calc(var(--arabic-font-size) * var(--active-zoom-factor)) !important;
+            color: #047857 !important;
+            line-height: 2.6 !important;
+            transition: font-size 0.35s ease, color 0.3s ease;
+            text-shadow: 0 0 1px rgba(4, 120, 87, 0.2);
+        }
+
+        .dark .active-verse .arabic-text {
+            color: #6ee7b7 !important;
+            text-shadow: 0 0 2px rgba(110, 231, 183, 0.3);
+        }
+
+        /* Equalizer Animation */
+        .eq-bar {
+            width: 3px;
+            background-color: #10b981;
+            animation: eqBounce 1s infinite ease-in-out alternate;
+        }
+        .eq-bar:nth-child(1) { animation-delay: 0.1s; height: 12px; }
+        .eq-bar:nth-child(2) { animation-delay: 0.3s; height: 18px; }
+        .eq-bar:nth-child(3) { animation-delay: 0.2s; height: 8px; }
+        .eq-bar:nth-child(4) { animation-delay: 0.4s; height: 15px; }
+
+        @keyframes eqBounce {
+            0% { transform: scaleY(0.3); }
+            100% { transform: scaleY(1.1); }
+        }
+
+        /* Pulse glow badge for currently playing verse */
+        .pulse-badge {
+            animation: pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.97); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(16, 185, 129, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans transition-colors duration-200 min-h-full flex flex-col antialiased">
+
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Brand Logo & Title -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showSurahList()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-emerald-500/20">
+                    <i class="fa-solid font-arabic">📖</i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        Al-Quran <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-medium">Juz 30 + Yasin & Kahfi</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Digital Quran & Interactive Murottal</p>
+                </div>
+            </div>
+
+            <!-- Controls: Reciter, Magnify Toggle, Theme -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Reciter Selection -->
+                <div class="relative hidden sm:block">
+                    <select id="qariSelect" onchange="changeQari(this.value)" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-lg px-3 py-2 pr-8 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+                        <option value="05">Mishary Rashid Alafasy</option>
+                        <option value="01">Abdullah Al-Juhany</option>
+                        <option value="02">Abdul Rahman Al-Sudais</option>
+                        <option value="03">Saad Al-Ghamdi</option>
+                        <option value="04">Maher Al-Muaiqly</option>
+                    </select>
+                </div>
+
+                <!-- Active Verse Zoom Toggle Quick Button -->
+                <button onclick="toggleZoomMode()" id="quickZoomBtn" class="p-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 rounded-lg transition-colors border border-emerald-500/30 flex items-center gap-1.5 text-xs font-semibold" title="Perbesar Ayat Aktif">
+                    <i class="fa-solid fa-magnifying-glass-plus text-sm"></i>
+                    <span class="hidden md:inline">Perbesar Ayat</span>
+                </button>
+
+                <!-- Bookmark Button -->
+                <button onclick="toggleBookmarkModal()" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors relative" title="Bookmark Disimpan">
+                    <i class="fa-solid fa-bookmark text-emerald-600 dark:text-emerald-400"></i>
+                    <span id="bookmarkCount" class="hidden absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                </button>
+
+                <!-- Settings Button -->
+                <button onclick="toggleSettingsModal()" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Pengaturan Tampilan & Zoom">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Ubah Mode Gelap/Terang">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-28">
+        
+        <!-- SURAH LIST VIEW -->
+        <section id="surahListView" class="space-y-6">
+            <!-- Hero / Quick Info Banner -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white p-6 sm:p-8 shadow-lg shadow-emerald-900/10">
+                <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                    <i class="fa-solid fa-book-quran text-9xl"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl space-y-3">
+                    <div class="inline-flex items-center gap-2 bg-emerald-900/40 backdrop-blur-md px-3 py-1 rounded-full text-xs text-emerald-200 border border-emerald-500/30">
+                        <i class="fa-solid fa-sparkles text-amber-300"></i> Update: Ditambahkan Surat Yasin & Al-Kahfi
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Murottal & Tafsir Ringkas</h2>
+                    <p class="text-emerald-100/90 text-sm leading-relaxed">
+                        Nikmati lantunan Murottal Juz 30 serta Surat Pilihan (Yasin & Al-Kahfi). Setiap ayat yang sedang dibaca akan secara otomatis diperbesar dan disorot agar memudahkan fokus membaca, menghafal, dan menyimak.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2 text-xs text-emerald-200">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-amber-300"></i> Total 39 Surat</span>
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-300"></i> Juz 30 + Surat Pilihan</span>
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-headphones text-amber-300"></i> Audio HQ 128kbps</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="relative w-full sm:max-w-md">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" oninput="filterSurahs()" placeholder="Cari nama surat (misal: Yasin, Al-Kahf, An-Naba, 18, 36)..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+                </div>
+
+                <div class="flex items-center justify-between w-full sm:w-auto gap-3 text-xs text-slate-500 dark:text-slate-400">
+                    <span id="surahCountBadge" class="bg-slate-200 dark:bg-slate-800 px-3 py-1.5 rounded-lg font-medium">39 Surat</span>
+                    <button onclick="playFullJuz30()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-md shadow-emerald-600/20 transition-colors">
+                        <i class="fa-solid fa-circle-play"></i> Putar Berurutan (Dengan Perbesar Ayat)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Surah Cards Grid -->
+            <div id="surahGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- JS Populates Surah Cards Here -->
+            </div>
+        </section>
+
+        <!-- SURAH DETAIL READER VIEW -->
+        <section id="surahDetailView" class="hidden space-y-6">
+            <!-- Detail Header Bar -->
+            <div class="flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+                <button onclick="showSurahList()" class="inline-flex items-center gap-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar Surat
+                </button>
+                
+                <div class="flex items-center gap-2">
+                    <button id="prevSurahBtn" onclick="navigateSurah(-1)" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium text-slate-600 dark:text-slate-300 transition-colors">
+                        <i class="fa-solid fa-chevron-left"></i> Surat Sebelumnya
+                    </button>
+                    <button id="nextSurahBtn" onclick="navigateSurah(1)" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium text-slate-600 dark:text-slate-300 transition-colors">
+                        Surat Selanjutnya <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Surah Header Banner -->
+            <div id="surahBanner" class="rounded-2xl bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 text-white p-6 sm:p-8 text-center relative overflow-hidden shadow-xl">
+                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                <div class="relative z-10 space-y-3">
+                    <span id="detailSurahType" class="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold tracking-wider uppercase">Makkiyah</span>
+                    <h2 id="detailSurahName" class="text-3xl sm:text-4xl font-bold tracking-tight">An-Naba'</h2>
+                    <p id="detailSurahTranslation" class="text-slate-300 text-sm">Berita Besar • 40 Ayat</p>
+                    <div class="pt-2 flex flex-wrap items-center justify-center gap-3">
+                        <button id="playCurrentSurahAudioBtn" onclick="playCurrentSurahAudio()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-emerald-600/30 transition-all">
+                            <i class="fa-solid fa-play"></i> Putar Murottal Surat Ini
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bismillah Header -->
+            <div id="bismillahHeader" class="text-center py-4 my-2">
+                <p class="font-arabic text-3xl text-emerald-700 dark:text-emerald-400">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Dengan nama Allah Yang Maha Pengasih, Maha Penyayang</p>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="versesLoading" class="py-16 text-center space-y-3 hidden">
+                <i class="fa-solid fa-circle-notch fa-spin text-3xl text-emerald-600 dark:text-emerald-400"></i>
+                <p class="text-sm text-slate-500">Memuat ayat-ayat Al-Quran...</p>
+            </div>
+
+            <!-- Verses Container -->
+            <div id="versesContainer" class="space-y-6">
+                <!-- JS renders verse cards here -->
+            </div>
+        </section>
+    </main>
+
+    <div id="audioPlayerDrawer" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-2xl transition-all duration-300">
+        <!-- Progress Bar (Clickable) -->
+        <div id="progressBarContainer" onclick="seekAudio(event)" class="w-full h-2 bg-slate-200 dark:bg-slate-800 cursor-pointer relative group">
+            <div id="progressBar" class="h-full bg-emerald-500 group-hover:bg-emerald-400 transition-all w-0"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <!-- Currently Playing Info -->
+            <div class="flex items-center gap-3 w-full sm:w-1/3">
+                <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 relative">
+                    <i class="fa-solid fa-headphones text-lg"></i>
+                    <!-- Animated EQ when playing -->
+                    <div id="eqAnimation" class="hidden absolute inset-0 bg-emerald-900/80 rounded-xl flex items-center justify-center gap-0.5 px-2">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                    </div>
+                </div>
+                <div class="truncate">
+                    <p id="playerSurahTitle" class="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">Pilih Surat / Ayat</p>
+                    <p id="playerSubtitle" class="text-xs text-slate-500 dark:text-slate-400 truncate">Mishary Rashid Alafasy</p>
+                </div>
+            </div>
+
+            <!-- Main Playback Controls -->
+            <div class="flex items-center justify-center gap-4 w-full sm:w-1/3">
+                <button onclick="playPrevAudio()" class="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors" title="Ayat/Surat Sebelumnya">
+                    <i class="fa-solid fa-backward-step text-lg"></i>
+                </button>
+
+                <button id="mainPlayBtn" onclick="togglePlayPause()" class="w-11 h-11 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 transition-transform active:scale-95">
+                    <i class="fa-solid fa-play text-base pl-0.5"></i>
+                </button>
+
+                <button onclick="playNextAudio()" class="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors" title="Ayat/Surat Selanjutnya">
+                    <i class="fa-solid fa-forward-step text-lg"></i>
+                </button>
+
+                <button id="loopBtn" onclick="toggleLoopMode()" class="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-xs transition-colors px-2 py-1 rounded" title="Mode Loop/Ulang">
+                    <i class="fa-solid fa-repeat"></i>
+                </button>
+            </div>
+
+            <!-- Audio Extra Settings (Time, Volume, Speed) -->
+            <div class="flex items-center justify-end gap-3 w-full sm:w-1/3 text-xs text-slate-500 dark:text-slate-400">
+                <span id="currentTimeDisplay">00:00</span> / <span id="durationDisplay">00:00</span>
+                
+                <div class="hidden md:flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+                    <i class="fa-solid fa-volume-high text-xs"></i>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="changeVolume(this.value)" class="w-16 h-1 accent-emerald-500 cursor-pointer">
+                </div>
+
+                <select id="playbackSpeed" onchange="changeSpeed(this.value)" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-medium rounded px-1.5 py-1 border border-slate-200 dark:border-slate-700 focus:outline-none">
+                    <option value="0.75">0.75x</option>
+                    <option value="1.0" selected>1.0x</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-emerald-600"></i> Pengaturan Tampilan & Perbesar Ayat
+                </h3>
+                <button onclick="toggleSettingsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Options -->
+            <div class="space-y-4">
+                <!-- Active Verse Zoom Toggle -->
+                <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800/60">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <div>
+                            <span class="text-sm font-semibold text-emerald-900 dark:text-emerald-200 block">Perbesar Ayat Yang Dibaca</span>
+                            <span class="text-[11px] text-emerald-700 dark:text-emerald-400 block">Perbesar teks Arab & sorot kartu ayat saat audio diputar</span>
+                        </div>
+                        <input type="checkbox" id="toggleAutoZoom" checked onchange="toggleAutoZoomOption(this.checked)" class="w-5 h-5 accent-emerald-600 rounded cursor-pointer">
+                    </label>
+
+                    <div id="zoomFactorContainer" class="mt-3 pt-3 border-t border-emerald-200/60 dark:border-emerald-800/60">
+                        <label class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-1">
+                            Tingkat Perbesaran: <span id="zoomFactorVal">1.35x</span>
+                        </label>
+                        <input type="range" id="zoomFactorSlider" min="1.1" max="1.8" step="0.05" value="1.35" oninput="updateZoomFactor(this.value)" class="w-full accent-emerald-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Ukuran Standar Teks Arab (<span id="arabicSizeVal">32px</span>)</label>
+                    <input type="range" id="arabicSizeSlider" min="24" max="48" value="32" oninput="updateFontSize('arabic', this.value)" class="w-full accent-emerald-600">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Ukuran Terjemahan (<span id="translationSizeVal">14px</span>)</label>
+                    <input type="range" id="translationSizeSlider" min="12" max="20" value="14" oninput="updateFontSize('translation', this.value)" class="w-full accent-emerald-600">
+                </div>
+
+                <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Tampilkan Transliterasi (Latin)</span>
+                        <input type="checkbox" id="toggleLatin" checked onchange="toggleViewOption('latin', this.checked)" class="w-4 h-4 accent-emerald-600 rounded">
+                    </label>
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Tampilkan Terjemahan Indonesia</span>
+                        <input type="checkbox" id="toggleTranslation" checked onchange="toggleViewOption('translation', this.checked)" class="w-4 h-4 accent-emerald-600 rounded">
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="toggleSettingsModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors shadow-md shadow-emerald-600/20">
+                Simpan & Pengaturan Selesai
+            </button>
+        </div>
+    </div>
+
+    <!-- BOOKMARK MODAL -->
+    <div id="bookmarkModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bookmark text-amber-500"></i> Ayat Diberi Tanda (Bookmark)
+                </h3>
+                <button onclick="toggleBookmarkModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div id="bookmarkList" class="max-h-72 overflow-y-auto space-y-2 divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Bookmarks rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-20 right-5 z-50 bg-slate-900 text-white dark:bg-emerald-600 px-4 py-2.5 rounded-xl shadow-lg text-xs font-medium transform translate-y-[-100px] opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-400 dark:text-white"></i>
+        <span id="toastMsg">Pesan Notifikasi</span>
+    </div>
+
+    <script>
+        // Surah Metadata for Juz 30 + Featured Surahs (Al-Kahf & Yasin)
+        const juz30Surahs = [
+            { number: 18, name: "Al-Kahf", arabic: "الكهْف", translation: "Gua", verses: 110, type: "Makkiyah", isFeatured: true },
+            { number: 36, name: "Yasin", arabic: "يس", translation: "Yasin", verses: 83, type: "Makkiyah", isFeatured: true },
+            { number: 78, name: "An-Naba'", arabic: "النَبَإ", translation: "Berita Besar", verses: 40, type: "Makkiyah" },
+            { number: 79, name: "An-Nazi'at", arabic: "النَّاِزعَات", translation: "Malaikat-Malaikat Yang Mencabut", verses: 46, type: "Makkiyah" },
+            { number: 80, name: "'Abasa", arabic: "عَبَسَ", translation: "Ia Bermuka Masam", verses: 42, type: "Makkiyah" },
+            { number: 81, name: "At-Takwir", arabic: "التَّكْوِير", translation: "Menggulung", verses: 29, type: "Makkiyah" },
+            { number: 82, name: "Al-Infitar", arabic: "الإنْفِطَار", translation: "Terbelah", verses: 19, type: "Makkiyah" },
+            { number: 83, name: "Al-Mutaffifin", arabic: "المُطَفِّفِين", translation: "Orang-Orang Yang Curang", verses: 36, type: "Makkiyah" },
+            { number: 84, name: "Al-Inshiqaq", arabic: "الإنْشِقَاق", translation: "Terbelah", verses: 25, type: "Makkiyah" },
+            { number: 85, name: "Al-Buruj", arabic: "البُرُوج", translation: "Gugusan Bintang", verses: 22, type: "Makkiyah" },
+            { number: 86, name: "At-Tariq", arabic: "الطَّارِق", translation: "Yang Datang Di Malam Hari", verses: 17, type: "Makkiyah" },
+            { number: 87, name: "Al-A'la", arabic: "الأعْلَى", translation: "Yang Maha Tinggi", verses: 19, type: "Makkiyah" },
+            { number: 88, name: "Al-Ghashiyah", arabic: "الغَاشِيَة", translation: "Hari Pembalasan", verses: 26, type: "Makkiyah" },
+            { number: 89, name: "Al-Fajr", arabic: "الفَجْر", translation: "Fajar", verses: 30, type: "Makkiyah" },
+            { number: 90, name: "Al-Balad", arabic: "البَلَد", translation: "Negeri", verses: 20, type: "Makkiyah" },
+            { number: 91, name: "Ash-Shams", arabic: "الشَّمْس", translation: "Matahari", verses: 15, type: "Makkiyah" },
+            { number: 92, name: "Al-Lail", arabic: "اللَّيْل", translation: "Malam", verses: 21, type: "Makkiyah" },
+            { number: 93, name: "Ad-Duha", arabic: "الضُّحَى", translation: "Waktu Dhuha", verses: 11, type: "Makkiyah" },
+            { number: 94, name: "Ash-Sharh", arabic: "الشَّرْح", translation: "Kelapangan", verses: 8, type: "Makkiyah" },
+            { number: 95, name: "At-Tin", arabic: "التِّين", translation: "Buah Tin", verses: 8, type: "Makkiyah" },
+            { number: 96, name: "Al-'Alaq", arabic: "العَلَق", translation: "Segumpal Darah", verses: 19, type: "Makkiyah" },
+            { number: 97, name: "Al-Qadr", arabic: "القَدْر", translation: "Kemuliaan", verses: 5, type: "Makkiyah" },
+            { number: 98, name: "Al-Bayyinah", arabic: "البَيِّنَة", translation: "Bukti Yang Nyata", verses: 8, type: "Madaniyah" },
+            { number: 99, name: "Az-Zalzalah", arabic: "الزَّلْزَلَة", translation: "Kegoncangan", verses: 8, type: "Madaniyah" },
+            { number: 100, name: "Al-'Adiyat", arabic: "العَادِيَات", translation: "Kuda Perang Yang Berlari Cepat", verses: 11, type: "Makkiyah" },
+            { number: 101, name: "Al-Qari'ah", arabic: "القَارِعَة", translation: "Hari Kiamat", verses: 11, type: "Makkiyah" },
+            { number: 102, name: "At-Takathur", arabic: "التَّكَاثُر", translation: "Bermewah-Mewahan", verses: 8, type: "Makkiyah" },
+            { number: 103, name: "Al-'Asr", arabic: "العَصْر", translation: "Masa/Waktu", verses: 3, type: "Makkiyah" },
+            { number: 104, name: "Al-Humazah", arabic: "الهُمَزَة", translation: "Pengumpat", verses: 9, type: "Makkiyah" },
+            { number: 105, name: "Al-Fil", arabic: "الفِيل", translation: "Gajah", verses: 5, type: "Makkiyah" },
+            { number: 106, name: "Quraish", arabic: "قُرَيْش", translation: "Suku Quraisy", verses: 4, type: "Makkiyah" },
+            { number: 107, name: "Al-Ma'un", arabic: "المَاعُون", translation: "Barang-Barang Yang Berguna", verses: 7, type: "Makkiyah" },
+            { number: 108, name: "Al-Kautsar", arabic: "الكَوْثَر", translation: "Nikmat Yang Banyak", verses: 3, type: "Makkiyah" },
+            { number: 109, name: "Al-Kafirun", arabic: "الكَاِفرُون", translation: "Orang-Orang Kafir", verses: 6, type: "Makkiyah" },
+            { number: 110, name: "An-Nasr", arabic: "النَّصْر", translation: "Pertolongan", verses: 3, type: "Madaniyah" },
+            { number: 111, name: "Al-Lahab", arabic: "المَسَد", translation: "Gejolak Api / Tali Sabut", verses: 5, type: "Makkiyah" },
+            { number: 112, name: "Al-Ikhlas", arabic: "الإخْلَاص", translation: "Ikhlas / Pemurnian Esa", verses: 4, type: "Makkiyah" },
+            { number: 113, name: "Al-Falaq", arabic: "الفَلَق", translation: "Waktu Subuh", verses: 5, type: "Makkiyah" },
+            { number: 114, name: "An-Nas", arabic: "النَّاس", translation: "Manusia", verses: 6, type: "Makkiyah" }
+        ];
+
+        // Reciter Base Audio Endpoints
+        const qariAudioBase = {
+            "01": "https://cdn.islamic.network/quran/audio/128/ar.juhany/",
+            "02": "https://cdn.islamic.network/quran/audio/128/ar.sudais/",
+            "03": "https://cdn.islamic.network/quran/audio/128/ar.shaatree/",
+            "04": "https://cdn.islamic.network/quran/audio/128/ar.mahermuaiqly/",
+            "05": "https://cdn.islamic.network/quran/audio/128/ar.alafasy/"
+        };
+
+        // Application State
+        let currentSurahIndex = 0;
+        let activeSurahData = null;
+        let activeVerses = [];
+        let currentPlayingVerseIndex = -1; // -1 means no verse selected or playing full surah
+        let isFullJuz30Mode = false;
+        let fullJuz30SurahIndex = 0;
+        let currentQariKey = "05";
+        let loopMode = "none"; // 'none', 'single', 'surah'
+        let isAutoZoomEnabled = true;
+        let activeZoomFactor = 1.35;
+        let bookmarks = JSON.parse(localStorage.getItem('quran_bookmarks') || '[]');
+
+        // HTML Audio Player
+        const audioPlayer = new Audio();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSurahGrid(juz30Surahs);
+            updateBookmarkBadge();
+            setupAudioEvents();
+            document.documentElement.style.setProperty('--arabic-font-size', '32px');
+            document.documentElement.style.setProperty('--active-zoom-factor', activeZoomFactor.toString());
+        });
+
+        // Setup Audio Listener Events
+        function setupAudioEvents() {
+            audioPlayer.addEventListener('timeupdate', () => {
+                if (!isNaN(audioPlayer.duration) && audioPlayer.duration > 0) {
+                    const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                    document.getElementById('progressBar').style.width = percent + '%';
+                    document.getElementById('currentTimeDisplay').textContent = formatTime(audioPlayer.currentTime);
+                    document.getElementById('durationDisplay').textContent = formatTime(audioPlayer.duration);
+                }
+            });
+
+            audioPlayer.addEventListener('ended', () => {
+                handleAudioEnded();
+            });
+
+            audioPlayer.addEventListener('play', () => {
+                document.getElementById('mainPlayBtn').innerHTML = '<i class="fa-solid fa-pause text-base"></i>';
+                document.getElementById('eqAnimation').classList.remove('hidden');
+            });
+
+            audioPlayer.addEventListener('pause', () => {
+                document.getElementById('mainPlayBtn').innerHTML = '<i class="fa-solid fa-play text-base pl-0.5"></i>';
+                document.getElementById('eqAnimation').classList.add('hidden');
+            });
+        }
+
+        // Render Surahs in Grid
+        function renderSurahGrid(surahs) {
+            const container = document.getElementById('surahGrid');
+            document.getElementById('surahCountBadge').textContent = `${surahs.length} Surat`;
+
+            if (surahs.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-3xl mb-2"></i>
+                        <p>Surat tidak ditemukan.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = surahs.map((s) => `
+                <div onclick="openSurahDetail(${s.number})" class="group bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/80 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-between relative overflow-hidden">
+                    ${s.isFeatured ? '<div class="absolute top-0 right-0 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">Surat Pilihan</div>' : ''}
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center font-bold text-sm transition-colors relative">
+                            <span>${s.number}</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors text-base flex items-center gap-1.5">
+                                ${s.name}
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                ${s.translation} • <span class="text-slate-400">${s.verses} Ayat</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-arabic text-xl font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">${s.arabic}</p>
+                        <span class="text-[10px] text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">${s.type}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search Filter function
+        function filterSurahs() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = juz30Surahs.filter(s => 
+                s.name.toLowerCase().includes(query) ||
+                s.translation.toLowerCase().includes(query) ||
+                s.number.toString() === query
+            );
+            renderSurahGrid(filtered);
+        }
+
+        async function openSurahDetail(surahNumber) {
+            currentSurahIndex = juz30Surahs.findIndex(s => s.number === surahNumber);
+            const surah = juz30Surahs[currentSurahIndex];
+            activeSurahData = surah;
+
+            // Switch view
+            document.getElementById('surahListView').classList.add('hidden');
+            document.getElementById('surahDetailView').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Update Banner & Info
+            document.getElementById('detailSurahName').textContent = `${surah.number}. ${surah.name}`;
+            document.getElementById('detailSurahTranslation').textContent = `${surah.translation} • ${surah.verses} Ayat`;
+            document.getElementById('detailSurahType').textContent = surah.type;
+
+            // Show Bismillah except for continuous
+            document.getElementById('bismillahHeader').style.display = (surahNumber === 1 || surahNumber === 9) ? 'none' : 'block';
+
+            // Fetch Verses from equran.id V2 API
+            document.getElementById('versesContainer').innerHTML = '';
+            document.getElementById('versesLoading').classList.remove('hidden');
+
+            try {
+                const response = await fetch(`https://equran.id/api/v2/surat/${surahNumber}`);
+                const result = await response.json();
+
+                if (result.code === 200) {
+                    activeVerses = result.data.ayat;
+                    renderVerses(activeVerses);
+                } else {
+                    throw new Error('Gagal mengambil data ayat');
+                }
+            } catch (error) {
+                console.error(error);
+                // Fallback offline generator if network fails
+                activeVerses = generateFallbackVerses(surah);
+                renderVerses(activeVerses);
+                showToast('Menggunakan mode cadangan / offline');
+            } finally {
+                document.getElementById('versesLoading').classList.add('hidden');
+            }
+        }
+
+        function renderVerses(verses) {
+            const container = document.getElementById('versesContainer');
+            const showLatin = document.getElementById('toggleLatin').checked;
+            const showTrans = document.getElementById('toggleTranslation').checked;
+            const transSize = document.getElementById('translationSizeSlider').value + 'px';
+
+            container.innerHTML = verses.map((verse, idx) => {
+                const verseNum = verse.nomorAyat || (idx + 1);
+                const isBookmarked = isVerseBookmarked(activeSurahData.number, verseNum);
+                const isCurrentlyPlaying = (currentPlayingVerseIndex === idx);
+
+                return `
+                <div id="verse-card-${verseNum}" class="verse-card bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4 ${isCurrentlyPlaying && isAutoZoomEnabled ? 'active-verse' : ''}">
+                    <!-- Verse Action Bar -->
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 font-bold text-xs flex items-center justify-center border border-emerald-500/20">
+                                ${verseNum}
+                            </span>
+                            <span class="text-xs text-slate-400 font-medium">${activeSurahData.name} : ${verseNum}</span>
+                            
+                            <!-- Active Reading Badge -->
+                            <span id="reading-badge-${verseNum}" class="${isCurrentlyPlaying ? 'inline-flex' : 'hidden'} pulse-badge items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-semibold shadow-sm">
+                                <i class="fa-solid fa-volume-high text-[10px]"></i> Sedang Dibaca
+                            </span>
+                        </div>
+
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <!-- Play Audio per Ayat -->
+                            <button onclick="playSpecificAyat(${verseNum})" class="p-1.5 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Putar & Perbesar Ayat Ini">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </button>
+                            <!-- Copy Verse Text -->
+                            <button onclick="copyVerseText(${verseNum})" class="p-1.5 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Salin Teks">
+                                <i class="fa-regular fa-copy text-xs"></i>
+                            </button>
+                            <!-- Bookmark Verse -->
+                            <button onclick="toggleBookmark(${activeSurahData.number}, ${verseNum})" class="p-1.5 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors ${isBookmarked ? 'text-amber-500' : ''}" title="Simpan Tanda">
+                                <i class="${isBookmarked ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Arabic Verse Text (Dynamically Enlarged when Active) -->
+                    <div class="text-right py-2">
+                        <p id="arabic-text-${verseNum}" class="arabic-text font-arabic text-slate-900 dark:text-slate-100 leading-loose">
+                            ${verse.teksArab}
+                        </p>
+                    </div>
+
+                    <!-- Latin Transliteration -->
+                    <div class="latin-text ${showLatin ? '' : 'hidden'} text-xs font-medium text-emerald-700 dark:text-emerald-400 italic">
+                        ${verse.teksLatin || ''}
+                    </div>
+
+                    <!-- Indonesian Translation -->
+                    <div class="trans-text ${showTrans ? '' : 'hidden'} text-slate-600 dark:text-slate-300 leading-relaxed" style="font-size: ${transSize}">
+                        ${verse.teksIndonesia || verse.terjemahan || ''}
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function playCurrentSurahAudio() {
+            if (!activeSurahData) return;
+            isFullJuz30Mode = false;
+            // Start reading verse by verse from verse 1 for synchronized verse zoom!
+            playSpecificAyat(1);
+            showToast(`Memutar Murottal Surat ${activeSurahData.name}`);
+        }
+
+        function playSpecificAyat(verseNumber) {
+            if (!activeVerses || activeVerses.length === 0) return;
+            currentPlayingVerseIndex = verseNumber - 1;
+
+            const verse = activeVerses[currentPlayingVerseIndex];
+            let audioUrl = "";
+
+            // Obtain audio URL for selected Qari
+            if (verse.audio) {
+                audioUrl = verse.audio[currentQariKey] || verse.audio['05'] || verse.audio['01'];
+            }
+            
+            if (!audioUrl) {
+                audioUrl = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${getGlobalVerseNumber(activeSurahData.number, verseNumber)}.mp3`;
+            }
+
+            audioPlayer.src = audioUrl;
+            audioPlayer.play().catch(e => console.log('Audio playback error:', e));
+
+            document.getElementById('playerSurahTitle').textContent = `${activeSurahData.name} : Ayat ${verseNumber}`;
+            document.getElementById('playerSubtitle').textContent = `Ayat ${verseNumber} dari ${activeSurahData.verses} • ${getQariName(currentQariKey)}`;
+
+            // Highlight and enlarge the active verse
+            highlightAndEnlargeVerseCard(verseNumber);
+        }
+
+        function highlightAndEnlargeVerseCard(verseNum) {
+            clearActiveVerseHighlight();
+
+            const card = document.getElementById(`verse-card-${verseNum}`);
+            const badge = document.getElementById(`reading-badge-${verseNum}`);
+
+            if (card) {
+                if (isAutoZoomEnabled) {
+                    card.classList.add('active-verse');
+                }
+                if (badge) {
+                    badge.classList.remove('hidden');
+                    badge.classList.add('inline-flex');
+                }
+
+                // Smooth scroll to place the active magnified verse at center of viewport
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function clearActiveVerseHighlight() {
+            document.querySelectorAll('.active-verse').forEach(el => el.classList.remove('active-verse'));
+            document.querySelectorAll('[id^="reading-badge-"]').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('inline-flex');
+            });
+        }
+
+        function playFullJuz30() {
+            isFullJuz30Mode = true;
+            fullJuz30SurahIndex = 0;
+            openSurahDetail(juz30Surahs[0].number);
+            setTimeout(() => {
+                playSpecificAyat(1);
+                showToast("Memutar Full Juz 30 (Surat 78 - 114) dengan Perbesar Ayat");
+            }, 600);
+        }
+
+        function togglePlayPause() {
+            if (!audioPlayer.src) {
+                if (activeSurahData) playCurrentSurahAudio();
+                else openSurahDetail(78);
+                return;
+            }
+
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+        }
+
+        function playNextAudio() {
+            if (currentPlayingVerseIndex >= 0 && currentPlayingVerseIndex < activeVerses.length - 1) {
+                playSpecificAyat(currentPlayingVerseIndex + 2);
+            } else {
+                navigateSurah(1);
+            }
+        }
+
+        function playPrevAudio() {
+            if (currentPlayingVerseIndex > 0) {
+                playSpecificAyat(currentPlayingVerseIndex);
+            } else {
+                navigateSurah(-1);
+            }
+        }
+
+        function handleAudioEnded() {
+            if (loopMode === 'single' && currentPlayingVerseIndex >= 0) {
+                playSpecificAyat(currentPlayingVerseIndex + 1);
+                return;
+            }
+
+            if (currentPlayingVerseIndex >= 0 && currentPlayingVerseIndex < activeVerses.length - 1) {
+                // Auto play next verse with automatic zoom transition
+                playSpecificAyat(currentPlayingVerseIndex + 2);
+            } else if (isFullJuz30Mode && fullJuz30SurahIndex < juz30Surahs.length - 1) {
+                // Auto advance to next surah in full Juz 30 mode
+                fullJuz30SurahIndex++;
+                openSurahDetail(juz30Surahs[fullJuz30SurahIndex].number);
+                setTimeout(() => playSpecificAyat(1), 800);
+            } else if (loopMode === 'surah') {
+                playSpecificAyat(1);
+            } else {
+                clearActiveVerseHighlight();
+                currentPlayingVerseIndex = -1;
+            }
+        }
+
+        function navigateSurah(direction) {
+            const newIndex = currentSurahIndex + direction;
+            if (newIndex >= 0 && newIndex < juz30Surahs.length) {
+                openSurahDetail(juz30Surahs[newIndex].number);
+                if (!audioPlayer.paused) {
+                    setTimeout(() => playSpecificAyat(1), 700);
+                }
+            } else {
+                showToast("Tiba di batas Surat Juz 30");
+            }
+        }
+
+        function showSurahList() {
+            document.getElementById('surahListView').classList.remove('hidden');
+            document.getElementById('surahDetailView').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeQari(qariKey) {
+            currentQariKey = qariKey;
+            showToast(`Qari diubah ke ${getQariName(qariKey)}`);
+            if (currentPlayingVerseIndex >= 0) {
+                playSpecificAyat(currentPlayingVerseIndex + 1);
+            }
+        }
+
+        function toggleZoomMode() {
+            isAutoZoomEnabled = !isAutoZoomEnabled;
+            const btn = document.getElementById('quickZoomBtn');
+            const checkbox = document.getElementById('toggleAutoZoom');
+            
+            if (checkbox) checkbox.checked = isAutoZoomEnabled;
+
+            if (isAutoZoomEnabled) {
+                btn.className = 'p-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-500/30 flex items-center gap-1.5 text-xs font-semibold';
+                showToast('Fitur Perbesar Ayat AKTIF');
+                if (currentPlayingVerseIndex >= 0) {
+                    highlightAndEnlargeVerseCard(currentPlayingVerseIndex + 1);
+                }
+            } else {
+                btn.className = 'p-2 text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-semibold';
+                clearActiveVerseHighlight();
+                showToast('Fitur Perbesar Ayat NONAKTIF');
+            }
+        }
+
+        function toggleAutoZoomOption(enabled) {
+            isAutoZoomEnabled = enabled;
+            if (currentPlayingVerseIndex >= 0) {
+                if (enabled) highlightAndEnlargeVerseCard(currentPlayingVerseIndex + 1);
+                else clearActiveVerseHighlight();
+            }
+        }
+
+        function updateZoomFactor(val) {
+            activeZoomFactor = parseFloat(val);
+            document.getElementById('zoomFactorVal').textContent = val + 'x';
+            document.documentElement.style.setProperty('--active-zoom-factor', val);
+        }
+
+        function toggleLoopMode() {
+            const btn = document.getElementById('loopBtn');
+            if (loopMode === 'none') {
+                loopMode = 'single';
+                btn.className = 'text-emerald-500 bg-emerald-100 dark:bg-emerald-950 text-xs transition-colors px-2 py-1 rounded font-bold';
+                btn.title = 'Loop: Ulangi Ayat Ini';
+                showToast('Ulangi: Single Ayat');
+            } else if (loopMode === 'single') {
+                loopMode = 'surah';
+                btn.className = 'text-amber-500 bg-amber-100 dark:bg-amber-950 text-xs transition-colors px-2 py-1 rounded font-bold';
+                btn.title = 'Loop: Ulangi Satu Surat';
+                showToast('Ulangi: Satu Surat');
+            } else {
+                loopMode = 'none';
+                btn.className = 'text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-xs transition-colors px-2 py-1 rounded';
+                btn.title = 'Mode Loop/Ulang';
+                showToast('Loop Dinonaktifkan');
+            }
+        }
+
+        function seekAudio(e) {
+            const container = document.getElementById('progressBarContainer');
+            const rect = container.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            if (!isNaN(audioPlayer.duration)) {
+                audioPlayer.currentTime = pos * audioPlayer.duration;
+            }
+        }
+
+        function changeVolume(val) {
+            audioPlayer.volume = val;
+        }
+
+        function changeSpeed(val) {
+            audioPlayer.playbackRate = parseFloat(val);
+        }
+
+        function toggleBookmark(surahNum, verseNum) {
+            const index = bookmarks.findIndex(b => b.surah === surahNum && b.verse === verseNum);
+            if (index > -1) {
+                bookmarks.splice(index, 1);
+                showToast('Tanda dihapus');
+            } else {
+                bookmarks.push({
+                    surah: surahNum,
+                    surahName: activeSurahData.name,
+                    verse: verseNum,
+                    timestamp: new Date().toLocaleDateString('id-ID')
+                });
+                showToast('Ayat ditambahkan ke Bookmark');
+            }
+
+            localStorage.setItem('quran_bookmarks', JSON.stringify(bookmarks));
+            updateBookmarkBadge();
+            renderVerses(activeVerses);
+            if (currentPlayingVerseIndex >= 0) {
+                highlightAndEnlargeVerseCard(currentPlayingVerseIndex + 1);
+            }
+        }
+
+        function isVerseBookmarked(surahNum, verseNum) {
+            return bookmarks.some(b => b.surah === surahNum && b.verse === verseNum);
+        }
+
+        function updateBookmarkBadge() {
+            const badge = document.getElementById('bookmarkCount');
+            if (bookmarks.length > 0) {
+                badge.textContent = bookmarks.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function toggleBookmarkModal() {
+            const modal = document.getElementById('bookmarkModal');
+            modal.classList.toggle('hidden');
+
+            if (!modal.classList.contains('hidden')) {
+                const list = document.getElementById('bookmarkList');
+                if (bookmarks.length === 0) {
+                    list.innerHTML = '<p class="text-xs text-center text-slate-400 py-6">Belum ada ayat yang disimpan.</p>';
+                    return;
+                }
+
+                list.innerHTML = bookmarks.map(b => `
+                    <div class="flex items-center justify-between py-3">
+                        <div>
+                            <p class="font-bold text-sm text-slate-800 dark:text-slate-100">Surat ${b.surahName} : Ayat ${b.verse}</p>
+                            <span class="text-[10px] text-slate-400">${b.timestamp}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="jumpToBookmark(${b.surah}, ${b.verse})" class="bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-lg text-xs font-semibold">
+                                Buka
+                            </button>
+                            <button onclick="toggleBookmark(${b.surah}, ${b.verse}); toggleBookmarkModal();" class="text-slate-400 hover:text-red-500 p-1">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function jumpToBookmark(surahNum, verseNum) {
+            toggleBookmarkModal();
+            openSurahDetail(surahNum);
+            setTimeout(() => {
+                playSpecificAyat(verseNum);
+            }, 600);
+        }
+
+        function copyVerseText(verseNum) {
+            const verse = activeVerses[verseNum - 1];
+            const textToCopy = `[QS. ${activeSurahData.name}: ${verseNum}]\n\n${verse.teksArab}\n\n"${verse.teksIndonesia || verse.terjemahan}"`;
+            
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = textToCopy;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            showToast("Teks ayat disalin ke clipboard!");
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function toggleSettingsModal() {
+            document.getElementById('settingsModal').classList.toggle('hidden');
+        }
+
+        function updateFontSize(type, val) {
+            if (type === 'arabic') {
+                document.getElementById('arabicSizeVal').textContent = val + 'px';
+                document.documentElement.style.setProperty('--arabic-font-size', val + 'px');
+            } else {
+                document.getElementById('translationSizeVal').textContent = val + 'px';
+            }
+            if (activeVerses.length > 0) renderVerses(activeVerses);
+            if (currentPlayingVerseIndex >= 0) {
+                highlightAndEnlargeVerseCard(currentPlayingVerseIndex + 1);
+            }
+        }
+
+        function toggleViewOption(type, isChecked) {
+            if (type === 'latin') {
+                document.querySelectorAll('.latin-text').forEach(el => el.classList.toggle('hidden', !isChecked));
+            } else if (type === 'translation') {
+                document.querySelectorAll('.trans-text').forEach(el => el.classList.toggle('hidden', !isChecked));
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-[-100px]');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-[-100px]');
+            }, 3000);
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function getQariName(key) {
+            const names = {
+                "01": "Abdullah Al-Juhany",
+                "02": "Abdul Rahman Al-Sudais",
+                "03": "Saad Al-Ghamdi",
+                "04": "Maher Al-Muaiqly",
+                "05": "Mishary Rashid Alafasy"
+            };
+            return names[key] || "Mishary Rashid Alafasy";
+        }
+
+        function getGlobalVerseNumber(surahNum, verseNum) {
+            const offsets = { 18: 2148, 36: 3709, 78: 5673, 79: 5713, 80: 5759, 81: 5801, 82: 5830, 83: 5849, 84: 5885, 85: 5910, 86: 5932, 87: 5949, 88: 5968, 89: 5994, 90: 6024, 91: 6044, 92: 6059, 93: 6080, 94: 6091, 95: 6099, 96: 6107, 97: 6126, 98: 6131, 99: 6139, 100: 6147, 101: 6158, 102: 6169, 103: 6177, 104: 6180, 105: 6189, 106: 6194, 107: 6198, 108: 6205, 109: 6208, 110: 6214, 111: 6217, 112: 6222, 113: 6226, 114: 6231 };
+            return (offsets[surahNum] || 5673) + verseNum - 1;
+        }
+
+        function generateFallbackVerses(surah) {
+            const list = [];
+            for (let i = 1; i <= surah.verses; i++) {
+                list.push({
+                    nomorAyat: i,
+                    teksArab: `عَمَّ يَتَسَاءَلُونَ ﴿${i}﴾`,
+                    teksLatin: `Ayat ke-${i} dari Surat ${surah.name}`,
+                    teksIndonesia: `Terjemahan ayat ke-${i} Surat ${surah.name}.`
+                });
+            }
+            return list;
+        }
+    </script>
+</body>
+</html>
